@@ -10,12 +10,12 @@ namespace Game
         #region ÉúÃüÖÜÆÚ
         void Start()
         {
-
+            GameManager.Instance.Init();
         }
 
         void Update()
         {
-
+            GameManager.Instance.Update();
         }
         #endregion
     }

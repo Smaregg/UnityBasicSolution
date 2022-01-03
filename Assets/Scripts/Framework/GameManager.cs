@@ -1,16 +1,16 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using Utility;
 
-namespace Game
+namespace Framework
 {
     /// <summary>
-    /// ×Ü¹ÜÀíÆ÷
+    /// æ€»ç®¡ç†å™¨
     /// </summary>
-    public class GameManager : Singleton<GameManager>
+    public class GameManager
     {
         /// <summary>
-        /// ËùÓĞ¹ÜÀíÆ÷¶¼ÔÚÕâÀï×¢²á
+        /// æ‰€æœ‰ç®¡ç†å™¨éƒ½åœ¨è¿™é‡Œæ³¨å†Œ
         /// </summary>
         private void RegisterManagers()
         {
@@ -18,16 +18,16 @@ namespace Game
         }
 
         /// <summary>
-        /// ×¢²á¹ÜÀíÆ÷
+        /// æ³¨å†Œç®¡ç†å™¨
         /// </summary>
-        /// <typeparam name="T">¹ÜÀíÆ÷ÀàĞÍ</typeparam>
+        /// <typeparam name="T">ç®¡ç†å™¨ç±»å‹</typeparam>
         private void Register<T>(T instance) where T : class, ManagerInterface, new()
         {
             instance.Init();
             m_lsManagers.Add(instance);
         }
 
-        #region ÉúÃüÖÜÆÚ
+        #region ç”Ÿå‘½å‘¨æœŸ
         public void Init()
         {
             m_lsManagers = new List<ManagerInterface>();
@@ -49,7 +49,7 @@ namespace Game
         #endregion
 
         /// <summary>
-        /// ËùÓĞÒÑ×¢²áµÄ¹ÜÀíÆ÷
+        /// æ‰€æœ‰å·²æ³¨å†Œçš„ç®¡ç†å™¨
         /// </summary>
         private List<ManagerInterface> m_lsManagers = null;
     }

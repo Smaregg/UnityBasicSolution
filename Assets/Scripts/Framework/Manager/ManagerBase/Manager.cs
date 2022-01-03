@@ -1,11 +1,11 @@
-using Utility;
+ï»¿using Utility;
 
-namespace Game
+namespace Framework
 {
     /// <summary>
-    /// ËùÓĞManagerµÄ»ùÀà
+    /// æ‰€æœ‰Managerçš„åŸºç±»
     /// </summary>
-    /// <typeparam name="T">ManagerÀà</typeparam>
+    /// <typeparam name="T">Managerç±»</typeparam>
     public class Manager<T> : Singleton<T>, ManagerInterface where T : class, ManagerInterface, new()
     {
         public virtual void Init() { }

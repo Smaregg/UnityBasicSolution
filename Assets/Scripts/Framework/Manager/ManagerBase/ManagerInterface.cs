@@ -1,22 +1,22 @@
-namespace Game
+ï»¿namespace Framework
 {
     /// <summary>
-    /// ¹ÜÀíÆ÷½Ó¿Ú
+    /// ç®¡ç†å™¨æ¥å£
     /// </summary>
     public interface ManagerInterface
     {
         /// <summary>
-        /// ³õÊ¼»¯¹ÜÀíÆ÷
+        /// åˆå§‹åŒ–ç®¡ç†å™¨
         /// </summary>
         public void Init();
 
         /// <summary>
-        /// Ã¿Ö¡¸üĞÂ¹ÜÀíÆ÷
+        /// æ¯å¸§æ›´æ–°ç®¡ç†å™¨
         /// </summary>
         public void Update();
 
         /// <summary>
-        /// Ïú»Ù¹ÜÀíÆ÷
+        /// é”€æ¯ç®¡ç†å™¨
         /// </summary>
         public void Dispose();
     }

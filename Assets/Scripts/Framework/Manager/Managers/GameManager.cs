@@ -7,14 +7,29 @@ namespace Framework
     /// <summary>
     /// 总管理器
     /// </summary>
-    public class GameManager
+    public class GameManager : Manager<GameManager>
     {
         /// <summary>
-        /// 所有管理器都在这里注册
+        /// 注册所有管理器
         /// </summary>
         private void RegisterManagers()
         {
-            
+            m_lsManagers = new List<ManagerInterface>();
+
+            // ********************系统管理器********************
+            Register(ResourceManager.Instance);
+
+            // ********************自定义管理器********************
+        }
+
+        /// <summary>
+        /// 注销所有管理器
+        /// </summary>
+        private void UnregisterManagers()
+        {
+            for (int i = 0; i < m_lsManagers.Count; i++)
+                m_lsManagers[i].Dispose();
+            m_lsManagers.Clear();
         }
 
         /// <summary>
@@ -28,23 +43,20 @@ namespace Framework
         }
 
         #region 生命周期
-        public void Init()
+        public override void Init()
         {
-            m_lsManagers = new List<ManagerInterface>();
             RegisterManagers();
         }
 
-        public void Update()
+        public override void Update()
         {
             for (int i = 0; i < m_lsManagers.Count; i++)
                 m_lsManagers[i].Update();
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
-            for (int i = 0; i < m_lsManagers.Count; i++)
-                m_lsManagers[i].Dispose();
-            m_lsManagers.Clear();
+            UnregisterManagers();
         }
         #endregion
 

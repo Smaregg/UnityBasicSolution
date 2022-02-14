@@ -13,9 +13,9 @@ namespace Framework
         public static GameMain Instance { get; private set; }
 
         /// <summary>
-        /// 总管理器
+        /// AB包模式
         /// </summary>
-        public GameManager MainManager { get { return m_mgrMain; } }
+        public bool AB_Mode = true;
 
         #region 生命周期
         private void Awake()
@@ -25,13 +25,12 @@ namespace Framework
 
         void Start()
         {
-            m_mgrMain = new GameManager();
-            m_mgrMain.Init();
+            GameManager.Instance.Init();
         }
 
         void Update()
         {
-            m_mgrMain.Update();
+            GameManager.Instance.Update();
         }
         #endregion
 

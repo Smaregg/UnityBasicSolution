@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Utility;
+﻿using System.Collections.Generic;
+using Framework.Scene;
 
 namespace Framework
 {
@@ -18,6 +17,7 @@ namespace Framework
 
             // ********************系统管理器********************
             Register(ResourceManager.Instance);
+            Register(SceneManager.Instance);
 
             // ********************自定义管理器********************
         }
@@ -60,9 +60,11 @@ namespace Framework
         }
         #endregion
 
+        #region 私有成员
         /// <summary>
         /// 所有已注册的管理器
         /// </summary>
         private List<ManagerInterface> m_lsManagers = null;
+        #endregion
     }
 }

@@ -34,9 +34,11 @@ namespace Framework
         }
         #endregion
 
+        #region 私有成员
         /// <summary>
         /// 总管理器
         /// </summary>
         private GameManager m_mgrMain = null;
+        #endregion
     }
 }

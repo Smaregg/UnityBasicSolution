@@ -18,7 +18,7 @@ namespace Framework
         /// </summary>
         /// <param name="rscName">资源名</param>
         /// <param name="obj">实例</param>
-        public void LoadGameObject(string rscName, out GameObject obj)
+        public void LoadGameObject(string rscName, System.Action<GameObject> callback, bool async = true)
         {
             string rscPath = string.Empty;
             if (GameMain.Instance.AB_Mode)
@@ -29,7 +29,11 @@ namespace Framework
             {
                 rscPath = MODEL_PATH;
             }
-            LoadResource(rscName, rscPath, out obj);
+            LoadResource<GameObject>(rscName, rscPath, (obj) =>
+            {
+                if (callback != null)
+                    callback(obj);
+            }, async);
         }
 
         /// <summary>
@@ -67,18 +71,33 @@ namespace Framework
         /// <param name="rscName">资源名</param>
         /// <param name="rscPath">资源路径</param>
         /// <param name="obj">实例</param>
-        private void LoadResource<T>(string rscName, string rscPath, out T obj) where T : UnityEngine.Object
+        private void LoadResource<T>(string rscName, string rscPath, System.Action<T> callback, bool async = true) where T : UnityEngine.Object
         {
             if (GameMain.Instance.AB_Mode)
             {
-                BundleInstance bundleInstance = GetBundleInstance(rscPath);
-                bundleInstance.GetObjInstance(rscName, out obj);
+                // 获取AB包实例
+                GetBundleInstance(rscPath, (bundleInstance) =>
+                {
+                    // 获取资源实例
+                    bundleInstance.GetObjInstance<T>(rscName, (obj) =>
+                    {
+                        m_dicInstanceMap.Add(obj, rscName);
+                        if (callback != null)
+                        {
+                            callback(obj);
+                        }
+                    }, async);
+                }, async);
             }
             else
             {
-                obj = Object.Instantiate(Resources.Load<T>(rscPath + rscName));
+                T obj = Object.Instantiate(Resources.Load<T>(rscPath + rscName));
+                m_dicInstanceMap.Add(obj, rscName);
+                if (callback != null)
+                {
+                    callback(obj);
+                }
             }
-            m_dicInstanceMap.Add(obj, rscName);
         }
 
         /// <summary>
@@ -91,9 +110,9 @@ namespace Framework
         private void UnloadResource<T>(string rscName, string rscPath, T obj) where T : UnityEngine.Object
         {
             m_dicInstanceMap.Remove(obj);
-            if (GameMain.Instance.AB_Mode)
+            if (GameMain.Instance.AB_Mode && m_dicBundles.ContainsKey(rscPath))
             {
-                BundleInstance bundleInstance = GetBundleInstance(rscPath);
+                BundleInstance bundleInstance = m_dicBundles[rscPath];
                 bundleInstance.RemoveObjInstance(rscName, obj);
             }
             else
@@ -108,21 +127,62 @@ namespace Framework
         /// </summary>
         /// <param name="bundleName">AB包名</param>
         /// <returns>AB包实例</returns>
-        private BundleInstance GetBundleInstance(string bundleName)
+        private void GetBundleInstance(string bundleName, System.Action<BundleInstance> callback, bool async = true)
         {
             BundleInstance bundleInstance = null;
+            // 已加载AB包
             if (m_dicBundles.ContainsKey(bundleName))
+            {
                 bundleInstance = m_dicBundles[bundleName];
+                if (callback != null)
+                    callback(bundleInstance);
+            }
+            // 未加载AB包
             else
             {
-                AssetBundle ab = AssetBundle.LoadFromFile(bundleName);
-                if (ab)
+                // 异步加载AB包
+                if (async)
                 {
-                    bundleInstance = new BundleInstance(ab);
-                    m_dicBundles.Add(bundleName, bundleInstance);
+                    GameMain.Instance.StartCoroutine(LoadAssetBundleAsync(bundleName, (opt) =>
+                    {
+                        AssetBundleCreateRequest loadOpt = opt as AssetBundleCreateRequest;
+                        if (loadOpt == null || loadOpt.assetBundle == null)
+                        {
+                            Debug.LogError("[ResourceManager] : " + bundleName + "AB包加载失败");
+                            return;
+                        }
+
+                        bundleInstance = new BundleInstance(loadOpt.assetBundle);
+                        m_dicBundles.Add(bundleName, bundleInstance);
+                        if (callback != null)
+                            callback(bundleInstance);
+                    }));
+                }
+                // 同步加载AB包
+                else
+                {
+                    AssetBundle ab = AssetBundle.LoadFromFile(bundleName);
+                    if (ab)
+                    {
+                        bundleInstance = new BundleInstance(ab);
+                        m_dicBundles.Add(bundleName, bundleInstance);
+                        if (callback != null)
+                            callback(bundleInstance);
+                    }
                 }
             }
-            return bundleInstance;
+        }
+
+        /// <summary>
+        /// 加载AB包协程
+        /// </summary>
+        /// <param name="bundleName">AB包路径</param>
+        /// <param name="callback">协程完成回调</param>
+        private IEnumerator LoadAssetBundleAsync(string bundleName, System.Action<AsyncOperation> callback)
+        {
+            AssetBundleCreateRequest opt = AssetBundle.LoadFromFileAsync(bundleName);
+            opt.completed += callback;
+            yield return 0;
         }
 
         #region 生命周期
@@ -200,10 +260,19 @@ namespace Framework
         /// <typeparam name="T">资源类型</typeparam>
         /// <param name="rscName">资源名</param>
         /// <param name="obj">实例</param>
-        public void GetObjInstance<T>(string rscName, out T obj) where T : UnityEngine.Object
+        public void GetObjInstance<T>(string rscName, System.Action<T> callback, bool async = true) where T : UnityEngine.Object
         {
-            ResourceInstance rscInstance = GetRscInstance<T>(rscName);
-            obj = rscInstance.CreateObjInstance<T>() as T;
+            // 获取资源
+            GetRscInstance<T>(rscName, (rscInstance) =>
+            {
+                if (rscInstance == null)
+                    return;
+
+                // 获取资源实例
+                T obj = rscInstance.CreateObjInstance<T>() as T;
+                if (callback != null)
+                    callback(obj);
+            }, async);
         }
 
         /// <summary>
@@ -214,8 +283,15 @@ namespace Framework
         /// <param name="obj">实例</param>
         public void RemoveObjInstance<T>(string rscName, T obj) where T : UnityEngine.Object
         {
-            ResourceInstance rscInstance = GetRscInstance<T>(rscName);
-            rscInstance.DestroyObjInstance(obj);
+            if (m_dicResources.ContainsKey(rscName))
+            {
+                ResourceInstance rscInstance = m_dicResources[rscName];
+                rscInstance.DestroyObjInstance(obj);
+            }
+            else
+            {
+                Object.Destroy(obj);
+            }
         }
 
         /// <summary>
@@ -252,18 +328,59 @@ namespace Framework
         /// <typeparam name="T">资源类型</typeparam>
         /// <param name="rscName">资源名</param>
         /// <returns>资源实例</returns>
-        private ResourceInstance GetRscInstance<T>(string rscName) where T : UnityEngine.Object
+        private void GetRscInstance<T>(string rscName, System.Action<ResourceInstance> callback, bool async = true) where T : UnityEngine.Object
         {
             ResourceInstance rscInstance = null;
+            // 已加载过
             if (m_dicResources.ContainsKey(rscName))
+            {
                 rscInstance = m_dicResources[rscName];
+                if (callback != null)
+                    callback(rscInstance);
+            }
+            // 未加载过
             else
             {
-                Object rsc = m_abBundle.LoadAsset<T>(rscName);
-                rscInstance = new ResourceInstance(rsc);
-                m_dicResources.Add(rscName, rscInstance);
+                // 异步加载
+                if (async)
+                {
+                    GameMain.Instance.StartCoroutine(LoadResourceAsync(rscName, (opt) =>
+                    {
+                        AssetBundleRequest loadOpt = opt as AssetBundleRequest;
+                        if (loadOpt == null || loadOpt.asset == null)
+                        {
+                            Debug.LogError("[ResourceManager] : " + rscName + "资源加载失败");
+                            return;
+                        }
+
+                        rscInstance = new ResourceInstance(loadOpt.asset);
+                        m_dicResources.Add(rscName, rscInstance);
+                        if (callback != null)
+                            callback(rscInstance);
+                    }));
+                }
+                // 同步加载
+                else
+                {
+                    Object rsc = m_abBundle.LoadAsset<T>(rscName);
+                    rscInstance = new ResourceInstance(rsc);
+                    m_dicResources.Add(rscName, rscInstance);
+                    if (callback != null)
+                        callback(rscInstance);
+                }
             }
-            return rscInstance;
+        }
+
+        /// <summary>
+        /// 资源加载协程
+        /// </summary>
+        /// <param name="rscName">资源名</param>
+        /// <param name="callback">协程完成回调</param>
+        private IEnumerator LoadResourceAsync(string rscName, System.Action<AsyncOperation> callback)
+        {
+            AssetBundleRequest opt = m_abBundle.LoadAssetAsync(rscName);
+            opt.completed += callback;
+            yield return 0;
         }
 
         public BundleInstance(AssetBundle ab)

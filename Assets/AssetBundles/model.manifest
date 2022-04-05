@@ -1,0 +1,33 @@
+ManifestFileVersion: 0
+CRC: 1232899036
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 8b43dcf03a467856708e24de1e30b8d6
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 6a1986447300ce2badd4d9448c1fbe3a
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 90
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 137
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/ResourceAssets/Models/Elf_Mesh.FBX
+- Assets/ResourceAssets/Models/free_male_1.FBX
+Dependencies:
+- D:/Game/Projects/Unity/UnityGameFramework/Assets/AssetBundles/animation

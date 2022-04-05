@@ -1,0 +1,19 @@
+ManifestFileVersion: 0
+CRC: 3614608583
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: a027a511ff01da7bf58533624e81b00e
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: e70a9c3ac033a59b68548e414f91bf57
+HashAppended: 0
+ClassTypes:
+- Class: 48
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/ResourceAssets/Shaders/Legacy/CelShader.shader
+- Assets/ResourceAssets/Shaders/SupercyanShader.shader
+Dependencies:
+- D:/Game/Projects/Unity/UnityGameFramework/Assets/AssetBundles/texture

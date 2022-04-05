@@ -1,0 +1,36 @@
+ManifestFileVersion: 0
+CRC: 1860279135
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 3d3746d9c64cf03c390a4ee5112ed8a9
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 9fc8495c236a1091907d38caf165807a
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 90
+  Script: {instanceID: 0}
+- Class: 91
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 137
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/ResourceAssets/Prefabs/Base/High Quality/MaleFree1.prefab
+- Assets/ResourceAssets/Prefabs/Character_Elf.prefab
+Dependencies:
+- D:/Game/Projects/Unity/UnityGameFramework/Assets/AssetBundles/animation
+- D:/Game/Projects/Unity/UnityGameFramework/Assets/AssetBundles/animator
+- D:/Game/Projects/Unity/UnityGameFramework/Assets/AssetBundles/material
+- D:/Game/Projects/Unity/UnityGameFramework/Assets/AssetBundles/model

@@ -6,12 +6,15 @@ namespace Framework
 {
     public class ResourceManager : Manager<ResourceManager>
     {
+        public static string PREFAB_PATH = "Podels/";
         public static string MODEL_PATH = "Models/";
         public static string SCENE_PATH = "Scenes/";
         public static string TEXTURE_PATH = "Textures/";
 
         public static string ROOT_PATH_AB = Application.dataPath + "/AssetBundles/";
-        public static string MODEL_PATH_AB = "Models/";
+        public static string MAIN_BUNDLE_PATH = "assetbundles";
+        public static string PREFAB_PATH_AB = "prefab";
+        public static string MODEL_PATH_AB = "model";
 
         /// <summary>
         /// 获取GameObject资源实例
@@ -23,14 +26,15 @@ namespace Framework
             string rscPath = string.Empty;
             if (GameMain.Instance.AB_Mode)
             {
-                rscPath = ROOT_PATH_AB + MODEL_PATH_AB;
+                rscPath = PREFAB_PATH_AB;
             }
             else
             {
-                rscPath = MODEL_PATH;
+                rscPath = PREFAB_PATH;
             }
             LoadResource<GameObject>(rscName, rscPath, (obj) =>
             {
+                m_isLoading = false;
                 if (callback != null)
                     callback(obj);
             }, async);
@@ -45,11 +49,11 @@ namespace Framework
             string rscPath = string.Empty;
             if (GameMain.Instance.AB_Mode)
             {
-                rscPath = ROOT_PATH_AB + MODEL_PATH_AB;
+                rscPath = PREFAB_PATH_AB;
             }
             else
             {
-                rscPath = MODEL_PATH;
+                rscPath = PREFAB_PATH;
             }
             if (m_dicInstanceMap.ContainsKey(obj))
             {
@@ -73,6 +77,7 @@ namespace Framework
         /// <param name="obj">实例</param>
         private void LoadResource<T>(string rscName, string rscPath, System.Action<T> callback, bool async = true) where T : UnityEngine.Object
         {
+            m_isLoading = true;
             if (GameMain.Instance.AB_Mode)
             {
                 // 获取AB包实例
@@ -140,10 +145,11 @@ namespace Framework
             // 未加载AB包
             else
             {
+                Debug.Log("[ResourceManager] : 加载AB包 :" + bundleName);
                 // 异步加载AB包
                 if (async)
                 {
-                    GameMain.Instance.StartCoroutine(LoadAssetBundleAsync(bundleName, (opt) =>
+                    GameMain.Instance.StartCoroutine(LoadAssetBundleAsync(ROOT_PATH_AB + bundleName, (opt) =>
                     {
                         AssetBundleCreateRequest loadOpt = opt as AssetBundleCreateRequest;
                         if (loadOpt == null || loadOpt.assetBundle == null)
@@ -152,10 +158,28 @@ namespace Framework
                             return;
                         }
 
-                        bundleInstance = new BundleInstance(loadOpt.assetBundle);
-                        m_dicBundles.Add(bundleName, bundleInstance);
-                        if (callback != null)
-                            callback(bundleInstance);
+                        // 加载依赖包
+                        string[] bundleDependenses = m_bundleManifest.GetAllDependencies(bundleName);
+
+                        // 没有依赖
+                        if (bundleDependenses.Length == 0)
+                        {
+                            bundleInstance = new BundleInstance(loadOpt.assetBundle, null);
+                            m_dicBundles.Add(bundleName, bundleInstance);
+                            if (callback != null)
+                                callback(bundleInstance);
+                        }
+                        // 有依赖，递归地加载
+                        else
+                        {
+                            LoadDependeces(bundleDependenses, (dependences) =>
+                            {
+                                bundleInstance = new BundleInstance(loadOpt.assetBundle, dependences);
+                                m_dicBundles.Add(bundleName, bundleInstance);
+                                if (callback != null)
+                                    callback(bundleInstance);
+                            }, true);
+                        }
                     }));
                 }
                 // 同步加载AB包
@@ -164,13 +188,55 @@ namespace Framework
                     AssetBundle ab = AssetBundle.LoadFromFile(bundleName);
                     if (ab)
                     {
-                        bundleInstance = new BundleInstance(ab);
-                        m_dicBundles.Add(bundleName, bundleInstance);
-                        if (callback != null)
-                            callback(bundleInstance);
+                        // 加载依赖包
+                        string[] bundleDependenses = m_bundleManifest.GetAllDependencies(bundleName);
+
+                        // 没有依赖
+                        if (bundleDependenses.Length == 0)
+                        {
+                            bundleInstance = new BundleInstance(ab, null);
+                            m_dicBundles.Add(bundleName, bundleInstance);
+                            if (callback != null)
+                                callback(bundleInstance);
+                        }
+                        // 有依赖，递归地加载
+                        else
+                        {
+                            LoadDependeces(bundleDependenses, (dependences) =>
+                            {
+                                bundleInstance = new BundleInstance(ab, dependences);
+                                m_dicBundles.Add(bundleName, bundleInstance);
+                                if (callback != null)
+                                    callback(bundleInstance);
+                            }, false);
+                        }
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 递归加载AB包依赖包
+        /// </summary>
+        /// <param name="bundleDependenses">所有依赖包</param>
+        /// <param name="async">是否异步</param>
+        /// <param name="callback">依赖包加载完成回调</param>
+        /// <param name="index">当前加载依赖包索引</param>
+        private void LoadDependeces(string[] bundleDependenses, System.Action<List<BundleInstance>> callback, bool async, int index = 0)
+        {
+            List<BundleInstance> dependences = new List<BundleInstance>();
+            GetBundleInstance(bundleDependenses[index], (dependence) =>
+            {
+                // 跳出递归，添加被依赖项
+                dependence.AddOneDependent();
+                dependences.Add(dependence);
+                if (++index >= bundleDependenses.Length)
+                {
+                    callback(dependences);
+                    return;
+                }
+                LoadDependeces(bundleDependenses, callback, async, index);
+            }, async);
         }
 
         /// <summary>
@@ -192,9 +258,18 @@ namespace Framework
             m_dicInstanceMap = new Dictionary<Object, string>();
         }
 
+        public override void Init()
+        {
+            base.Init();
+            m_mainBundle = AssetBundle.LoadFromFile(ROOT_PATH_AB + MAIN_BUNDLE_PATH);
+            m_bundleManifest = m_mainBundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+        }
+
         public override void Update()
         {
             base.Update();
+            if (m_isLoading)
+                return;
             if (GameMain.Instance.AB_Mode)
             {
                 List<string> lsWaitForUnload = new List<string>();
@@ -236,6 +311,10 @@ namespace Framework
         }
         #endregion
 
+        private AssetBundle m_mainBundle = null;
+
+        private AssetBundleManifest m_bundleManifest = null;
+
         /// <summary>
         /// AB包实例
         /// </summary>
@@ -245,14 +324,20 @@ namespace Framework
         /// 实例-资源名映射
         /// </summary>
         private Dictionary<Object, string> m_dicInstanceMap = null;
+
+        /// <summary>
+        /// 是否正在加载
+        /// </summary>
+        private bool m_isLoading = false;
     }
 
     public class BundleInstance
     {
         /// <summary>
         /// 该AB包是否需要卸载
+        /// 当且仅当该AB包没有加载资源且不被其他任何AB包依赖时可卸载
         /// </summary>
-        public bool CanDestroy { get { return m_dicResources.Count == 0; } }
+        public bool CanDestroy { get { return m_dicResources.Count == 0 && m_beDependetNum == 0; } }
 
         /// <summary>
         /// 获取资源实例
@@ -318,8 +403,34 @@ namespace Framework
         /// </summary>
         public void UnloadBundle()
         {
+            // 删除依赖包引用
+            for (int i = 0; i < m_dependences.Count; i++)
+            {
+                m_dependences[i].RemoveOneDependent();
+            }
+            m_dependences.Clear();
             m_dicResources.Clear();
             m_abBundle.Unload(true);
+        }
+
+        /// <summary>
+        /// 添加一个被依赖项
+        /// </summary>
+        public void AddOneDependent()
+        {
+            ++m_beDependetNum;
+        }
+
+        /// <summary>
+        /// 移除一个被依赖项
+        /// </summary>
+        public void RemoveOneDependent()
+        {
+            if (--m_beDependetNum < 0)
+            {
+                Debug.LogError("[ResourceManager] : 错误删除AB包依赖");
+                m_beDependetNum = 0;
+            }
         }
 
         /// <summary>
@@ -383,10 +494,14 @@ namespace Framework
             yield return 0;
         }
 
-        public BundleInstance(AssetBundle ab)
+        public BundleInstance(AssetBundle ab, List<BundleInstance> bundleInstances)
         {
-            m_abBundle = ab;
             m_dicResources = new Dictionary<string, ResourceInstance>();
+            m_abBundle = ab;
+            m_dependences = bundleInstances;
+            if (m_dependences == null)
+                m_dependences = new List<BundleInstance>();
+            m_beDependetNum = 0;
         }
 
         /// <summary>
@@ -398,6 +513,16 @@ namespace Framework
         /// 该AB包实例化的资源索引
         /// </summary>
         private Dictionary<string, ResourceInstance> m_dicResources = null;
+
+        /// <summary>
+        /// 所有依赖包
+        /// </summary>
+        private List<BundleInstance> m_dependences = null;
+
+        /// <summary>
+        /// 被依赖的包个数
+        /// </summary>
+        private int m_beDependetNum = 0;
     }
 
     public class ResourceInstance

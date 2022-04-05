@@ -1,0 +1,43 @@
+ManifestFileVersion: 0
+CRC: 605568001
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: a7ced240d6440cb3f22e898f2112a4e7
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 3e0e561aee5be4af6d05a2570ddffaf5
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 74
+  Script: {instanceID: 0}
+- Class: 90
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 137
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/ResourceAssets/Animations/common_people@walk.FBX
+- Assets/ResourceAssets/Animations/common_people@jump-float.FBX
+- Assets/ResourceAssets/Animations/common_people@backwards-run.FBX
+- Assets/ResourceAssets/Animations/common_people@run.FBX
+- Assets/ResourceAssets/Animations/common_people@wave.FBX
+- Assets/ResourceAssets/Animations/common_people@backwards-walk.FBX
+- Assets/ResourceAssets/Animations/common_people@pickup.FBX
+- Assets/ResourceAssets/Animations/common_people@jump-up.FBX
+- Assets/ResourceAssets/Animations/common_people@jump-down.FBX
+- Assets/ResourceAssets/Animations/common_people@idle.FBX
+- Assets/ResourceAssets/Animations/common_people@mpose.FBX
+Dependencies: []

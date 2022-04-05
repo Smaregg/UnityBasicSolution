@@ -1,0 +1,25 @@
+ManifestFileVersion: 0
+CRC: 3271493227
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 595bf83f335f8a65bfe78fa29d185173
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 5ed098661139a8dfcb7d987ca0c8a1ba
+HashAppended: 0
+ClassTypes:
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/ResourceAssets/Materials/Character_Elf.mat
+- Assets/ResourceAssets/Materials/High Quality/free_male_1_body.mat
+- Assets/ResourceAssets/Materials/High Quality/free_male_1_head.mat
+Dependencies:
+- D:/Game/Projects/Unity/UnityGameFramework/Assets/AssetBundles/shader
+- D:/Game/Projects/Unity/UnityGameFramework/Assets/AssetBundles/texture

@@ -1,0 +1,23 @@
+ManifestFileVersion: 0
+CRC: 1151415836
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 6401e39121ce12646043bebc49a2989d
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: b0363f7088f9761414f730641bf9a24b
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/ResourceAssets/Textures/Elf_Metallic.tga
+- Assets/ResourceAssets/Textures/Legacy/free_shadowRamp.png
+- Assets/ResourceAssets/Textures/Elf_Albedo.tga
+- Assets/ResourceAssets/Textures/free_male_1_body_diffuse.psd
+- Assets/ResourceAssets/Textures/free_male_1_head_diffuse.psd
+- Assets/ResourceAssets/Textures/Elf_Normals.tga
+- Assets/ResourceAssets/Textures/Elf_Ao.tga
+Dependencies: []

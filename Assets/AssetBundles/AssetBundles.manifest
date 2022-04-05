@@ -1,0 +1,34 @@
+ManifestFileVersion: 0
+CRC: 1830587149
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: animation
+      Dependencies: {}
+    Info_1:
+      Name: material
+      Dependencies:
+        Dependency_0: shader
+        Dependency_1: texture
+    Info_2:
+      Name: model
+      Dependencies:
+        Dependency_0: animation
+    Info_3:
+      Name: prefab
+      Dependencies:
+        Dependency_0: animation
+        Dependency_1: material
+        Dependency_2: model
+        Dependency_3: animator
+    Info_4:
+      Name: shader
+      Dependencies:
+        Dependency_0: texture
+    Info_5:
+      Name: texture
+      Dependencies: {}
+    Info_6:
+      Name: animator
+      Dependencies:
+        Dependency_0: animation

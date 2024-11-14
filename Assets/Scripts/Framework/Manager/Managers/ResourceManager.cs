@@ -261,8 +261,11 @@ namespace Framework
         public override void Init()
         {
             base.Init();
-            m_mainBundle = AssetBundle.LoadFromFile(ROOT_PATH_AB + MAIN_BUNDLE_PATH);
-            m_bundleManifest = m_mainBundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+            if (GameMain.Instance.AB_Mode)
+            {
+                m_mainBundle = AssetBundle.LoadFromFile(ROOT_PATH_AB + MAIN_BUNDLE_PATH);
+                m_bundleManifest = m_mainBundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+            }
         }
 
         public override void Update()
